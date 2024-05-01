@@ -6,7 +6,7 @@
 #include <zephyr/logging/log.h>
 #include "zbus.h" // ###
 
-LOG_MODULE_DECLARE(zbus, CONFIG_ZBUS_MORE_CONFIGS_LOG_LEVEL);
+LOG_MODULE_DECLARE(zbus, CONFIG_ZBUS_MORE_CONFIG_LOG_LEVEL);
 
 int zbus_chan_add_obs(const struct zbus_channel *chan, const struct zbus_observer *obs,
 		      k_timeout_t timeout)

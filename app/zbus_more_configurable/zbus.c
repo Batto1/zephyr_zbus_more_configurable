@@ -11,13 +11,13 @@
 #include <zephyr/sys/printk.h>
 #include <zephyr/net/buf.h>
 #include "zbus.h"
-LOG_MODULE_REGISTER(zbus, CONFIG_ZBUS_MORE_CONFIGS_LOG_LEVEL);
+LOG_MODULE_REGISTER(zbus, CONFIG_ZBUS_MORE_CONFIG_LOG_LEVEL);
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER)
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_DYNAMIC)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_DYNAMIC)
 
-NET_BUF_POOL_HEAP_DEFINE(_zbus_msg_subscribers_pool, CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_POOL_SIZE,
+NET_BUF_POOL_HEAP_DEFINE(_zbus_msg_subscribers_pool, CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_POOL_SIZE,
 			 sizeof(struct zbus_channel *), NULL);
 BUILD_ASSERT(CONFIG_HEAP_MEM_POOL_SIZE > 0, "MSG_SUBSCRIBER feature requires heap memory pool.");
 
@@ -30,22 +30,22 @@ static inline struct net_buf *_zbus_create_net_buf(struct net_buf_pool *pool, si
 #else
 
 NET_BUF_POOL_FIXED_DEFINE(_zbus_msg_subscribers_pool,
-			  (CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_POOL_SIZE),
-			  (CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE),
+			  (CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_POOL_SIZE),
+			  (CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE),
 			  sizeof(struct zbus_channel *), NULL);
 
 static inline struct net_buf *_zbus_create_net_buf(struct net_buf_pool *pool, size_t size,
 						   k_timeout_t timeout)
 {
-	__ASSERT(size <= CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE,
-		 "CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE must be greater or equal to "
+	__ASSERT(size <= CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE,
+		 "CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_STATIC_DATA_SIZE must be greater or equal to "
 		 "%d",
 		 (int)size);
 	return net_buf_alloc(&_zbus_msg_subscribers_pool, timeout);
 }
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER_NET_BUF_DYNAMIC */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER_NET_BUF_DYNAMIC */
 
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER */
 
 int _zbus_init(void)
 {
@@ -72,13 +72,13 @@ int _zbus_init(void)
 	STRUCT_SECTION_FOREACH(zbus_channel, chan) {
 		k_mutex_init(&chan->data->mutex);
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_RUNTIME_OBSERVERS)
 		sys_slist_init(&chan->data->observers);
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_RUNTIME_OBSERVERS */
 	}
 	return 0;
 }
-SYS_INIT(_zbus_init, APPLICATION, CONFIG_ZBUS_MORE_CONFIGS_CHANNELS_SYS_INIT_PRIORITY);
+SYS_INIT(_zbus_init, APPLICATION, CONFIG_ZBUS_MORE_CONFIG_CHANNELS_SYS_INIT_PRIORITY);
 
 static inline int _zbus_notify_observer(const struct zbus_channel *chan,
 					const struct zbus_observer *obs, k_timepoint_t end_time,
@@ -92,7 +92,7 @@ static inline int _zbus_notify_observer(const struct zbus_channel *chan,
 	case ZBUS_OBSERVER_SUBSCRIBER_TYPE: {
 		return k_msgq_put(obs->queue, &chan, sys_timepoint_timeout(end_time));
 	}
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER)
 	case ZBUS_OBSERVER_MSG_SUBSCRIBER_TYPE: {
 		struct net_buf *cloned_buf = net_buf_clone(buf, sys_timepoint_timeout(end_time));
 
@@ -105,7 +105,7 @@ static inline int _zbus_notify_observer(const struct zbus_channel *chan,
 
 		break;
 	}
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER */
 
 	default:
 		_ZBUS_ASSERT(false, "Unreachable");
@@ -123,7 +123,7 @@ static inline int _zbus_vded_exec(const struct zbus_channel *chan, k_timepoint_t
 	struct zbus_channel_observation *observation;
 	struct zbus_channel_observation_mask *observation_mask;
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER)
 	buf = _zbus_create_net_buf(&_zbus_msg_subscribers_pool, zbus_chan_msg_size(chan),
 				   sys_timepoint_timeout(end_time));
 
@@ -131,7 +131,7 @@ static inline int _zbus_vded_exec(const struct zbus_channel *chan, k_timepoint_t
 				  "unavailable or heap is full");
 
 	net_buf_add_mem(buf, zbus_chan_msg(chan), zbus_chan_msg_size(chan));
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER */
 
 	LOG_DBG("Notifing %s's observers. Starting VDED:", _ZBUS_CHAN_NAME(chan));
 
@@ -157,7 +157,7 @@ static inline int _zbus_vded_exec(const struct zbus_channel *chan, k_timepoint_t
 			LOG_ERR("could not deliver notification to observer %s. Error code %d",
 				_ZBUS_OBS_NAME(obs), err);
 			if (err == -ENOMEM) {
-				if (IS_ENABLED(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER)) {
+				if (IS_ENABLED(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER)) {
 					net_buf_unref(buf);
 				}
 				return err;
@@ -167,7 +167,7 @@ static inline int _zbus_vded_exec(const struct zbus_channel *chan, k_timepoint_t
 		LOG_DBG(" %d -> %s", index++, _ZBUS_OBS_NAME(obs));
 	}
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_RUNTIME_OBSERVERS)
 	/* Dynamic observer event dispatcher logic */
 	struct zbus_observer_node *obs_nd, *tmp;
 
@@ -185,9 +185,9 @@ static inline int _zbus_vded_exec(const struct zbus_channel *chan, k_timepoint_t
 			last_error = err;
 		}
 	}
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_RUNTIME_OBSERVERS */
 
-	IF_ENABLED(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER, (net_buf_unref(buf);))
+	IF_ENABLED(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER, (net_buf_unref(buf);))
 
 	return last_error;
 }
@@ -295,7 +295,7 @@ int zbus_sub_wait(const struct zbus_observer *sub, const struct zbus_channel **c
 	return k_msgq_get(sub->queue, chan, timeout);
 }
 
-#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER)
+#if defined(CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER)
 
 int zbus_sub_wait_msg(const struct zbus_observer *sub, const struct zbus_channel **chan, void *msg,
 		      k_timeout_t timeout)
@@ -323,7 +323,7 @@ int zbus_sub_wait_msg(const struct zbus_observer *sub, const struct zbus_channel
 	return 0;
 }
 
-#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIG_MSG_SUBSCRIBER */
 
 int zbus_obs_set_chan_notification_mask(const struct zbus_observer *obs,
 					const struct zbus_channel *chan, bool masked)
