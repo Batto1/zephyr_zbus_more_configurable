@@ -43,12 +43,12 @@ struct zbus_channel_data {
 	 */
 	struct k_mutex mutex;
 
-#if defined(CONFIG_ZBUS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
 	/** Channel observer list. Represents the channel's observers list, it can be empty
 	 * or have listeners and subscribers mixed in any sequence. It can be changed in runtime.
 	 */
 	sys_slist_t observers;
-#endif /* CONFIG_ZBUS_RUNTIME_OBSERVERS */
+#endif /* CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS */
 };
 
 /**
@@ -58,7 +58,7 @@ struct zbus_channel_data {
  * access and usage.
  */
 struct zbus_channel {
-#if defined(CONFIG_ZBUS_CHANNEL_NAME) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_CHANNEL_NAME) || defined(__DOXYGEN__)
 	/** Channel name. */
 	const char *const name;
 #endif
@@ -112,7 +112,7 @@ enum __packed zbus_observer_type {
  *
  */
 struct zbus_observer {
-#if defined(CONFIG_ZBUS_OBSERVER_NAME) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_OBSERVER_NAME) || defined(__DOXYGEN__)
 	/** Observer name. */
 	const char *const name;
 #endif
@@ -129,12 +129,12 @@ struct zbus_observer {
 		/** Observer callback function. It turns the observer into a listener. */
 		void (*const callback)(const struct zbus_channel *chan);
 
-#if defined(CONFIG_ZBUS_MSG_SUBSCRIBER) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER) || defined(__DOXYGEN__)
 		/** Observer message FIFO. It turns the observer into a message subscriber. It only
-		 * exists if the @kconfig{CONFIG_ZBUS_MSG_SUBSCRIBER} is enabled.
+		 * exists if the @kconfig{CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER} is enabled.
 		 */
 		struct k_fifo *const message_fifo;
-#endif /* CONFIG_ZBUS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
 	};
 };
 
@@ -154,7 +154,7 @@ struct zbus_channel_observation {
 #define _ZBUS_CPP_EXTERN
 #endif /* __cplusplus */
 
-#if defined(CONFIG_ZBUS_ASSERT_MOCK)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_ASSERT_MOCK)
 #define _ZBUS_ASSERT(_cond, _fmt, ...)                                                             \
 	do {                                                                                       \
 		if (!(_cond)) {                                                                    \
@@ -168,7 +168,7 @@ struct zbus_channel_observation {
 #define _ZBUS_ASSERT(_cond, _fmt, ...) __ASSERT(_cond, _fmt, ##__VA_ARGS__)
 #endif
 
-#if defined(CONFIG_ZBUS_CHANNEL_NAME)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_CHANNEL_NAME)
 #define ZBUS_CHANNEL_NAME_INIT(_name) .name = #_name,
 #define _ZBUS_CHAN_NAME(_chan)        (_chan)->name
 #else
@@ -176,7 +176,7 @@ struct zbus_channel_observation {
 #define _ZBUS_CHAN_NAME(_chan) ""
 #endif
 
-#if defined(CONFIG_ZBUS_OBSERVER_NAME)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_OBSERVER_NAME)
 #define ZBUS_OBSERVER_NAME_INIT(_name) .name = #_name,
 #define _ZBUS_OBS_NAME(_obs)           (_obs)->name
 #else
@@ -184,7 +184,7 @@ struct zbus_channel_observation {
 #define _ZBUS_OBS_NAME(_obs) ""
 #endif
 
-#if defined(CONFIG_ZBUS_RUNTIME_OBSERVERS)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS)
 #define ZBUS_RUNTIME_OBSERVERS_LIST_DECL(_slist_name) static sys_slist_t _slist_name
 #define ZBUS_RUNTIME_OBSERVERS_LIST_INIT(_slist_name) .runtime_observers = &_slist_name,
 #else
@@ -223,13 +223,13 @@ struct zbus_channel_observation {
 				_CONCAT(_CONCAT(_chan, _ZBUS_OBSERVATION_PREFIX(UTIL_INC(_idx))),  \
 					_mask)) = {.enabled = false};
 
-#if defined(CONFIG_ZBUS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
 #define _ZBUS_RUNTIME_OBSERVERS(_name)      .observers = &(_CONCAT(_observers_, _name)),
 #define _ZBUS_RUNTIME_OBSERVERS_DECL(_name) static sys_slist_t _CONCAT(_observers_, _name);
 #else
 #define _ZBUS_RUNTIME_OBSERVERS(_name)
 #define _ZBUS_RUNTIME_OBSERVERS_DECL(_name)
-#endif /* CONFIG_ZBUS_RUNTIME_OBSERVERS */
+#endif /* CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS */
 
 /** @endcond */
 
@@ -528,7 +528,7 @@ int zbus_chan_finish(const struct zbus_channel *chan);
  */
 int zbus_chan_notify(const struct zbus_channel *chan, k_timeout_t timeout);
 
-#if defined(CONFIG_ZBUS_CHANNEL_NAME) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_CHANNEL_NAME) || defined(__DOXYGEN__)
 
 /**
  * @brief Get the channel's name.
@@ -620,7 +620,7 @@ static inline void *zbus_chan_user_data(const struct zbus_channel *chan)
 	return chan->user_data;
 }
 
-#if defined(CONFIG_ZBUS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS) || defined(__DOXYGEN__)
 
 /**
  * @brief Add an observer to a channel.
@@ -670,7 +670,7 @@ struct zbus_observer_node {
 
 /** @endcond */
 
-#endif /* CONFIG_ZBUS_RUNTIME_OBSERVERS */
+#endif /* CONFIG_ZBUS_MORE_CONFIGS_RUNTIME_OBSERVERS */
 
 /**
  * @brief Change the observer state.
@@ -746,7 +746,7 @@ int zbus_obs_set_chan_notification_mask(const struct zbus_observer *obs,
 int zbus_obs_is_chan_notification_masked(const struct zbus_observer *obs,
 					 const struct zbus_channel *chan, bool *masked);
 
-#if defined(CONFIG_ZBUS_OBSERVER_NAME) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_OBSERVER_NAME) || defined(__DOXYGEN__)
 
 /**
  * @brief Get the observer's name.
@@ -787,7 +787,7 @@ static inline const char *zbus_obs_name(const struct zbus_observer *obs)
 int zbus_sub_wait(const struct zbus_observer *sub, const struct zbus_channel **chan,
 		  k_timeout_t timeout);
 
-#if defined(CONFIG_ZBUS_MSG_SUBSCRIBER) || defined(__DOXYGEN__)
+#if defined(CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER) || defined(__DOXYGEN__)
 
 /**
  * @brief Wait for a channel message.
@@ -810,7 +810,7 @@ int zbus_sub_wait(const struct zbus_observer *sub, const struct zbus_channel **c
 int zbus_sub_wait_msg(const struct zbus_observer *sub, const struct zbus_channel **chan, void *msg,
 		      k_timeout_t timeout);
 
-#endif /* CONFIG_ZBUS_MSG_SUBSCRIBER */
+#endif /* CONFIG_ZBUS_MORE_CONFIGS_MSG_SUBSCRIBER */
 
 /**
  *

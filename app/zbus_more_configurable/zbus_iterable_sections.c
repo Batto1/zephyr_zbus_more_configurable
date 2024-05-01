@@ -4,8 +4,8 @@
  */
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/iterable_sections.h>
-#include <zephyr/zbus/zbus.h>
-LOG_MODULE_DECLARE(zbus, CONFIG_ZBUS_LOG_LEVEL);
+#include "zbus.h" // ###
+LOG_MODULE_DECLARE(zbus, CONFIG_ZBUS_MORE_CONFIGS_LOG_LEVEL); 
 
 bool zbus_iterate_over_channels(bool (*iterator_func)(const struct zbus_channel *chan))
 {
